@@ -16,6 +16,9 @@ void *gmemcpy(void *dest, const void *src, size_t n);
 void *mmemcpy(void *dest, const void *src, size_t n);
 void *local_memcpy(void *dest, const void *src, size_t n);
 void *aarch64_memcpy(void *dest, const void *src, size_t n);
+void *amemcpy(void *dest, const void *src, size_t n);
+
+
 
 //void *memset(void *s, int c, size_t n);
 //void *libc_memset(void *s, int c, size_t n);

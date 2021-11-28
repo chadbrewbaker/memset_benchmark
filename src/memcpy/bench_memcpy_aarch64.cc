@@ -50,12 +50,13 @@ void bench_impl(const std::vector<memcpy_ty *> &toTest, unsigned size,
 
 /// Allocate and copy buffers at random offsets and in random sizes.
 /// The sizes and the offsets are in the range 0..256.
-void bench_rand_range(const std::vector<memcpy_ty *> &toTest) {
+void bench_rand_range(const std::vector<memcpy_ty *> &toTest, const std::vector<std::string> names) {
   std::vector<char> dest(4096, 1);
   std::vector<char> src(4096, 0);
   const char *src_p = &src[0];
   char *dest_p = &dest[0];
-
+  unsigned results[10];
+  uint64_t count = 0;
   for (auto handle : toTest) {
     Stopwatch T;
     sleep(1);
@@ -71,8 +72,14 @@ void bench_rand_range(const std::vector<memcpy_ty *> &toTest) {
     }
 
     std::cout << T.get_median() << ", ";
+   results[count]= T.get_median();
+   count++;
   }
   std::cout << std::endl;
+  for (int i=0; i<count-1;i++)
+	  std::cout << (double)results[i] / (double)results[count] << " ";
+  std::cout << "1.0" << std::endl;
+
 }
 
 // To measure the call overhead.
@@ -84,15 +91,16 @@ int main(int argc, char **argv) {
 
   std::vector<memcpy_ty *> toTest = {
  
-      &memcpy, &local_memcpy, &aarch64_memcpy,&mmemcpy, &gmemcpy, &nop};
+      &memcpy, &local_memcpy, &aarch64_memcpy,&mmemcpy, &gmemcpy, &amemcpy,&nop};
 
+  std::vector<std::string> names ={"system","c", "xnu", "musl", "gnu", "arm", "nop" };
   std::cout << "Batches of random sizes:\n";
-  std::cout << "libc,  c_memcpy, aarch64_memcpy, mmemcpy, gmemcpy,  nop,\n";
+  std::cout << "libc,  c_memcpy, aarch64_memcpy, mmemcpy, gmemcpy, amemcpy,  nop,\n";
 
-  bench_rand_range(toTest);
+  bench_rand_range(toTest, names);
 
   std::cout << "\nFixed size:\n";
-  std::cout << "size, libc, c_memcpy, aarch64_memcpy, mmemcpy, gmemcpy, nop,\n";
+  std::cout << "size, libc, c_memcpy, aarch64_memcpy, mmemcpy, gmemcpy, amemcpy, nop,\n";
 
   for (int i = 0; i < 512; i++) {
     bench_impl(toTest, i, 16, 0);
